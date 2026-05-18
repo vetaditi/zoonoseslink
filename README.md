@@ -138,6 +138,5 @@ alembic downgrade -1
 ## Author
 
 Dr. Aditi Sharma  
-Wildlife Veterinarian · MSc One Health, University of Edinburgh (s2260265)  
-Council for Environment & Sustainable Development, Dehradun  
-Co-supervisor: Dr. Ramesh Krishnamurthy, Wildlife Institute of India
+Wildlife Veterinarian  
+founder & Director, Council for Environment & Sustainable Development, Dehradun  
