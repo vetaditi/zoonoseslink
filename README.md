@@ -139,4 +139,4 @@ alembic downgrade -1
 
 Dr. Aditi Sharma  
 Wildlife Veterinarian  
-founder & Director, Council for Environment & Sustainable Development, Dehradun  
+Founder & Director, Council for Environment & Sustainable Development, Dehradun  
