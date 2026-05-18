@@ -1,0 +1,952 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ZoonosesLink Dashboard v3.1</title>
+<style>
+:root{
+  --bg:#f4f6f9;--surface:#ffffff;--surface2:#f8fafc;--border:#e2e8f0;
+  --text:#1e293b;--muted:#64748b;--faint:#94a3b8;
+  --teal:#0d9488;--teal-bg:#f0fdfa;--teal-border:#99f6e4;
+  --red:#dc2626;--red-bg:#fef2f2;--red-border:#fecaca;
+  --amber:#d97706;--amber-bg:#fffbeb;--amber-border:#fcd34d;
+  --blue:#2563eb;--blue-bg:#eff6ff;--blue-border:#bfdbfe;
+  --green:#16a34a;--green-bg:#f0fdf4;--green-border:#bbf7d0;
+  --radius:8px;--radius-lg:12px;
+}
+[data-theme="dark"]{
+  --bg:#0f172a;--surface:#1e293b;--surface2:#263347;--border:#334155;
+  --text:#e2e8f0;--muted:#94a3b8;--faint:#475569;
+  --teal:#2dd4bf;--teal-bg:#134e4a;--teal-border:#0f766e;
+  --red:#f87171;--red-bg:#450a0a;--red-border:#7f1d1d;
+  --amber:#fbbf24;--amber-bg:#451a03;--amber-border:#92400e;
+  --blue:#60a5fa;--blue-bg:#1e3a5f;--blue-border:#1e40af;
+  --green:#4ade80;--green-bg:#052e16;--green-border:#14532d;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);line-height:1.5;font-size:14px}
+a{color:inherit;text-decoration:none}
+/* Layout */
+.shell{display:grid;grid-template-columns:220px 1fr;min-height:100vh}
+.sidebar{background:var(--surface);border-right:1px solid var(--border);padding:0;display:flex;flex-direction:column;position:sticky;top:0;height:100vh;overflow-y:auto}
+.sidebar-header{padding:16px;border-bottom:1px solid var(--border)}
+.logo{font-weight:700;font-size:15px;color:var(--teal);display:flex;align-items:center;gap:8px}
+.logo-sub{font-size:11px;color:var(--muted);margin-top:2px}
+.nav{padding:8px}
+.nav-item{display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:var(--radius);cursor:pointer;color:var(--muted);font-size:13px;margin-bottom:2px;transition:all .15s}
+.nav-item:hover,.nav-item.active{background:var(--teal-bg);color:var(--teal);border:1px solid var(--teal-border)}
+.nav-item:not(:hover):not(.active){border:1px solid transparent}
+.nav-icon{font-size:16px;width:18px;text-align:center}
+.main{overflow-y:auto;padding:24px;max-width:960px}
+/* Panels */
+.panel{display:none}.panel.active{display:block}
+/* Cards */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px 20px;margin-bottom:16px}
+.card-title{font-size:13px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:12px}
+.metric-row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px}
+.metric{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px}
+.metric-label{font-size:11px;color:var(--muted);margin-bottom:4px}
+.metric-val{font-size:22px;font-weight:700;line-height:1}
+/* Form */
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.form-grid.three{grid-template-columns:1fr 1fr 1fr}
+.form-grid.single{grid-template-columns:1fr}
+.field label{display:block;font-size:12px;color:var(--muted);margin-bottom:4px;font-weight:500}
+.field select,.field input{width:100%;padding:7px 10px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface2);color:var(--text);font-size:13px}
+.field select:focus,.field input:focus{outline:2px solid var(--teal);border-color:var(--teal)}
+.section-divider{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin:14px 0 8px;padding-bottom:4px;border-bottom:1px solid var(--border)}
+.checkbox-group{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.checkbox-row{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);cursor:pointer}
+.checkbox-row input{width:14px;height:14px;accent-color:var(--teal)}
+.submit-btn{width:100%;margin-top:12px;padding:10px;border-radius:var(--radius);background:var(--teal);color:white;border:none;font-weight:600;font-size:14px;cursor:pointer;transition:opacity .15s}
+.submit-btn:hover{opacity:.9}
+.submit-btn:disabled{opacity:.5;cursor:not-allowed}
+/* Badges */
+.badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:99px;font-size:11px;font-weight:600;border:1px solid}
+.badge-CRITICAL{background:var(--red-bg);color:var(--red);border-color:var(--red-border)}
+.badge-HIGH{background:var(--amber-bg);color:var(--amber);border-color:var(--amber-border)}
+.badge-MEDIUM{background:var(--blue-bg);color:var(--blue);border-color:var(--blue-border)}
+.badge-LOW{background:var(--green-bg);color:var(--green);border-color:var(--green-border)}
+.badge-IHR{background:var(--red-bg);color:var(--red);border-color:var(--red-border)}
+.badge-ok{background:var(--green-bg);color:var(--green);border-color:var(--green-border)}
+/* Report result */
+.result-box{border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;margin-bottom:16px}
+.result-header{background:var(--surface2);padding:12px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border)}
+.result-header h3{font-size:14px;font-weight:600}
+.score-big{font-size:36px;font-weight:700;line-height:1}
+.risk-bar-wrap{margin:8px 0 4px}
+.risk-bar-bg{height:8px;border-radius:4px;background:var(--border);overflow:hidden}
+.risk-bar-fill{height:100%;border-radius:4px;transition:width .5s}
+.section-tabs{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:8px}
+.section-tab{padding:4px 10px;border-radius:99px;font-size:12px;cursor:pointer;border:1px solid var(--border);background:var(--surface2);color:var(--muted);transition:all .1s}
+.section-tab.active{background:var(--teal-bg);color:var(--teal);border-color:var(--teal-border)}
+.form-section{display:none}.form-section.active{display:block}
+.kv-table{width:100%;border-collapse:collapse;font-size:12px}
+.kv-table td{padding:5px 8px;border-bottom:1px solid var(--border);vertical-align:top}
+.kv-table td:first-child{color:var(--muted);width:40%;font-weight:500}
+.kv-table tr:last-child td{border-bottom:none}
+/* Dashboard table */
+.report-table{width:100%;border-collapse:collapse;font-size:12px}
+.report-table th{padding:8px 10px;text-align:left;font-size:11px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.04em;border-bottom:1px solid var(--border)}
+.report-table td{padding:8px 10px;border-bottom:1px solid var(--border);vertical-align:middle}
+.report-table tr:last-child td{border-bottom:none}
+.report-table tr:hover td{background:var(--surface2)}
+/* Disease grid */
+.disease-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.disease-card{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:10px 12px}
+.disease-code{font-weight:700;font-size:12px;font-family:monospace;color:var(--teal)}
+.disease-name{font-size:13px;font-weight:500;margin:2px 0}
+.disease-meta{font-size:11px;color:var(--muted)}
+.tier-label{font-size:10px;padding:1px 6px;border-radius:99px;font-weight:600;border:1px solid}
+.tier-1{background:var(--red-bg);color:var(--red);border-color:var(--red-border)}
+.tier-2{background:var(--amber-bg);color:var(--amber);border-color:var(--amber-border)}
+.tier-3{background:var(--blue-bg);color:var(--blue);border-color:var(--blue-border)}
+/* Toast */
+.toast{position:fixed;bottom:20px;right:20px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:12px 16px;font-size:13px;box-shadow:0 4px 16px rgba(0,0,0,.15);z-index:1000;display:none;max-width:360px}
+.toast.show{display:block;animation:fadein .2s}
+@keyframes fadein{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+/* Spatial */
+.spatial-results{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:12px;max-height:300px;overflow-y:auto;font-size:12px}
+.cluster-item{padding:6px 0;border-bottom:1px solid var(--border)}
+.cluster-item:last-child{border-bottom:none}
+/* Action box */
+.action-box{border-left:3px solid;padding:8px 12px;border-radius:0 var(--radius) var(--radius) 0;font-size:12px;line-height:1.6;margin-top:8px}
+.action-CRITICAL{border-color:var(--red);background:var(--red-bg);color:var(--red)}
+.action-HIGH{border-color:var(--amber);background:var(--amber-bg);color:var(--amber)}
+.action-MEDIUM{border-color:var(--blue);background:var(--blue-bg);color:var(--blue)}
+.action-LOW{border-color:var(--green);background:var(--green-bg);color:var(--green)}
+/* Theme toggle */
+.theme-toggle{margin-top:auto;padding:12px 16px;border-top:1px solid var(--border)}
+.theme-toggle button{width:100%;padding:6px;border-radius:var(--radius);border:1px solid var(--border);background:var(--surface2);color:var(--muted);font-size:12px;cursor:pointer}
+.api-base-row{display:flex;gap:8px;margin-bottom:12px}
+.api-base-row input{flex:1;padding:6px 10px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface2);color:var(--text);font-size:12px}
+.api-base-row button{padding:6px 12px;border-radius:var(--radius);background:var(--teal);color:white;border:none;font-size:12px;cursor:pointer}
+.tag{font-size:10px;padding:1px 6px;border-radius:99px;background:var(--surface2);border:1px solid var(--border);color:var(--muted)}
+@media(max-width:700px){.shell{grid-template-columns:1fr}.sidebar{display:none}.metric-row{grid-template-columns:1fr 1fr}.form-grid{grid-template-columns:1fr}.disease-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body data-theme="light">
+
+<div class="shell">
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sidebar-header">
+    <div class="logo">⚕ ZoonosesLink</div>
+    <div class="logo-sub">NOHP-PCZ Aligned · v3.1</div>
+  </div>
+  <nav class="nav" id="nav">
+    <div class="nav-item active" data-panel="submit">     <span class="nav-icon">📤</span> Submit report</div>
+    <div class="nav-item"        data-panel="result">     <span class="nav-icon">📋</span> Annexure-XI form</div>
+    <div class="nav-item"        data-panel="dashboard">  <span class="nav-icon">📊</span> Dashboard</div>
+    <div class="nav-item"        data-panel="spatial">    <span class="nav-icon">🗺</span> Spatial queries</div>
+    <div class="nav-item"        data-panel="diseases">   <span class="nav-icon">🦠</span> Disease list</div>
+    <div class="nav-item"        data-panel="audit">      <span class="nav-icon">🔍</span> Audit trail</div>
+    <div class="nav-item"        data-panel="wildlife">   <span class="nav-icon">🌿</span> Wildlife context</div>
+  </nav>
+  <div class="theme-toggle">
+    <button onclick="toggleTheme()">Toggle light/dark</button>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+
+  <!-- API base URL bar (shown on all panels) -->
+  <div class="api-base-row">
+    <input id="api-base" value="http://127.0.0.1:8000" placeholder="API base URL">
+    <button onclick="pingHealth()">Ping health</button>
+  </div>
+
+  <div class="metric-row" id="metrics">
+    <div class="metric"><div class="metric-label">Total reports</div><div class="metric-val" id="m-total">—</div></div>
+    <div class="metric"><div class="metric-label">Critical events</div><div class="metric-val" id="m-crit" style="color:var(--red)">—</div></div>
+    <div class="metric"><div class="metric-label">Annex 2 review flags</div><div class="metric-val" id="m-ihr" style="color:var(--amber)">—</div></div>
+    <div class="metric"><div class="metric-label">States active</div><div class="metric-val" id="m-states" style="color:var(--teal)">—</div></div>
+  </div>
+
+  <!-- ═══ SUBMIT ═══ -->
+  <div class="panel active" id="panel-submit">
+    <div class="card">
+      <div class="card-title">Cross-reporting event — POST /api/v3/zoonoses/report</div>
+
+      <div class="section-divider">Source &amp; event classification</div>
+      <div class="form-grid">
+        <div class="field"><label>Reporting source</label>
+          <select id="f-source">
+            <option value="IDSP_IHIP">IDSP / IHIP</option>
+            <option value="NADRS" selected>NADRS</option>
+            <option value="NADRES_v2">NADRES v2</option>
+            <option value="NDLM">NDLM</option>
+            <option value="SSSZ">SSSZ (Sentinel Site)</option>
+          </select>
+        </div>
+        <div class="field"><label>Event type</label>
+          <select id="f-event">
+            <option value="SUSPECTED">Suspected</option>
+            <option value="CONFIRMED" selected>Confirmed</option>
+            <option value="OUTBREAK">Outbreak</option>
+            <option value="EARLY_WARNING">Early warning</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="section-divider">Disease</div>
+      <div class="form-grid">
+        <div class="field"><label>Disease code</label>
+          <select id="f-disease">
+            <optgroup label="Tier 1 — Immediate (IHR notifiable)">
+              <option value="RABIES">RABIES — Rabies</option>
+              <option value="ANTHRAX">ANTHRAX — Anthrax</option>
+              <option value="NIPAH">NIPAH — Nipah virus</option>
+              <option value="AVIAN_INFLUENZA">AVIAN_INFLUENZA — Avian influenza</option>
+              <option value="PLAGUE">PLAGUE — Plague</option>
+              <option value="CRIMEAN_CONGO_HF">CRIMEAN_CONGO_HF — CCHF</option>
+            </optgroup>
+            <optgroup label="Tier 2 — Urgent">
+              <option value="BRUCELLOSIS">BRUCELLOSIS</option>
+              <option value="LEPTOSPIROSIS">LEPTOSPIROSIS</option>
+              <option value="JEV">JEV — Japanese encephalitis</option>
+              <option value="SCRUB_TYPHUS">SCRUB_TYPHUS</option>
+              <option value="KYASANUR_FOREST">KYASANUR_FOREST — KFD</option>
+              <option value="MPOX">MPOX</option>
+            </optgroup>
+            <optgroup label="Tier 3 — Routine">
+              <option value="ZOONOTIC_TB">ZOONOTIC_TB</option>
+              <option value="Q_FEVER">Q_FEVER</option>
+              <option value="SALMONELLOSIS">SALMONELLOSIS</option>
+              <option value="MELIOIDOSIS">MELIOIDOSIS</option>
+              <option value="FASCIOLOSIS">FASCIOLOSIS</option>
+              <option value="CAMPYLOBACTERIOSIS">CAMPYLOBACTERIOSIS</option>
+              <option value="TOXOPLASMOSIS">TOXOPLASMOSIS</option>
+            </optgroup>
+          </select>
+        </div>
+        <div class="field"><label>Confirmed by</label>
+          <select id="f-confirmed">
+            <option value="Laboratory" selected>Laboratory</option>
+            <option value="Clinical">Clinical</option>
+            <option value="Epidemiological">Epidemiological</option>
+            <option value="Presumptive">Presumptive</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="section-divider">Location</div>
+      <div class="form-grid three">
+        <div class="field"><label>State code</label>
+          <select id="f-state">
+            <option value="UK" selected>UK — Uttarakhand</option>
+            <option value="RJ">RJ — Rajasthan</option>
+            <option value="UP">UP — Uttar Pradesh</option>
+            <option value="KL">KL — Kerala</option>
+            <option value="KA">KA — Karnataka</option>
+            <option value="MH">MH — Maharashtra</option>
+            <option value="AS">AS — Assam</option>
+            <option value="WB">WB — West Bengal</option>
+            <option value="GJ">GJ — Gujarat</option>
+            <option value="TN">TN — Tamil Nadu</option>
+          </select>
+        </div>
+        <div class="field"><label>District</label><input id="f-district" value="Dehradun"></div>
+        <div class="field"><label>Block</label><input id="f-block" value="Raipur"></div>
+      </div>
+      <div class="form-grid">
+        <div class="field"><label>Latitude</label><input id="f-lat" type="number" step="0.0001" value="30.3165"></div>
+        <div class="field"><label>Longitude</label><input id="f-lon" type="number" step="0.0001" value="78.0322"></div>
+      </div>
+
+      <div class="section-divider">Cases &amp; affected species</div>
+      <div class="form-grid">
+        <div class="field"><label>Human cases</label><input id="f-hcases" type="number" value="2" min="0"></div>
+        <div class="field"><label>Human deaths</label><input id="f-hdeaths" type="number" value="1" min="0"></div>
+      </div>
+      <div class="form-grid">
+        <div class="field"><label>Animal cases</label><input id="f-acases" type="number" value="7" min="0"></div>
+        <div class="field"><label>Animal deaths</label><input id="f-adeaths" type="number" value="2" min="0"></div>
+      </div>
+      <div class="form-grid single">
+        <div class="field"><label>Species affected (comma-separated)</label><input id="f-species" value="Dog, Human, Cattle"></div>
+      </div>
+
+      <div class="section-divider">Evidence</div>
+      <div class="form-grid">
+        <div class="field"><label>Lab name</label><input id="f-lab" value="NCDC Delhi"></div>
+        <div class="field"><label>Exposure route</label>
+          <select id="f-route">
+            <option value="Contact" selected>Contact</option>
+            <option value="Ingestion">Ingestion</option>
+            <option value="Vector">Vector</option>
+            <option value="Inhalation">Inhalation</option>
+            <option value="Unknown">Unknown</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-grid single">
+        <div class="field"><label>Suspected source</label><input id="f-suspsource" value="Animal bite from stray dog"></div>
+      </div>
+
+      <div class="section-divider">Risk flags</div>
+      <div class="checkbox-group">
+        <label class="checkbox-row"><input type="checkbox" id="rf-human" checked> Human exposure confirmed</label>
+        <label class="checkbox-row"><input type="checkbox" id="rf-wildlife"> Wildlife involvement</label>
+        <label class="checkbox-row"><input type="checkbox" id="rf-food"> Foodborne risk</label>
+        <label class="checkbox-row"><input type="checkbox" id="rf-trans"> Transboundary risk</label>
+      </div>
+
+      <div class="section-divider">NOHP-PCZ integration</div>
+      <div class="form-grid">
+        <div class="field"><label>NOHP-PCZ event ID (IHIP portal)</label><input id="f-nohpcz" placeholder="Leave blank if not yet linked"></div>
+        <div class="field"><label>SSSZ site code</label><input id="f-sssz" placeholder="e.g. SSSZ-UK-003"></div>
+      </div>
+
+      <div class="section-divider">Reporting officer</div>
+      <div class="form-grid">
+        <div class="field"><label>Name</label><input id="f-officer" value="Dr. A. Sharma"></div>
+        <div class="field"><label>Designation</label><input id="f-desig" value="Wildlife Veterinarian / MSc One Health"></div>
+      </div>
+      <div class="form-grid single">
+        <div class="field"><label>Reporting unit</label>
+          <select id="f-unit">
+            <option value="Field_Team" selected>Field team</option>
+            <option value="Facility">Facility</option>
+            <option value="Veterinary_Institution">Veterinary institution</option>
+            <option value="Laboratory">Laboratory</option>
+            <option value="SSSZ_Site">SSSZ site</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-grid single">
+        <div class="field"><label>X-API-Key</label><input id="f-apikey" value="nadrs-integration-key" type="password"></div>
+      </div>
+
+      <button class="submit-btn" id="submit-btn" onclick="submitReport()">
+        Submit cross-report → generate Annexure-XI
+      </button>
+      <div id="submit-error" style="color:var(--red);font-size:12px;margin-top:8px;display:none"></div>
+    </div>
+  </div>
+
+  <!-- ═══ RESULT ═══ -->
+  <div class="panel" id="panel-result">
+    <div id="result-empty" class="card" style="text-align:center;padding:32px;color:var(--muted)">
+      No report submitted yet. Submit a cross-report to generate the Annexure-XI form.
+    </div>
+    <div id="result-content" style="display:none">
+      <div class="result-box">
+        <div class="result-header">
+          <div>
+            <div style="font-size:11px;color:var(--muted);margin-bottom:2px">Form reference</div>
+            <h3 id="r-formref">—</h3>
+            <div style="font-size:11px;color:var(--muted);margin-top:2px">Annexure-XI v3.0 (NCDC 2024) · NOHP-PCZ aligned</div>
+          </div>
+          <div style="text-align:right">
+            <div class="score-big" id="r-score">—</div>
+            <div style="font-size:11px;color:var(--muted)">Risk score / 100</div>
+            <div id="r-tier-badge" style="margin-top:4px"></div>
+          </div>
+        </div>
+        <div style="padding:12px 16px">
+          <div class="risk-bar-wrap">
+            <div class="risk-bar-bg"><div class="risk-bar-fill" id="r-bar" style="width:0%"></div></div>
+            <div style="display:flex;gap:12px;margin-top:4px;font-size:10px;color:var(--muted)">
+              <span>Low 0–29</span><span>Medium 30–49</span><span>High 50–69</span><span>Critical 70+</span>
+            </div>
+          </div>
+          <div id="r-action-box"></div>
+          <div id="r-ihr-box" style="margin-top:6px"></div>
+          <div id="r-wahis-box"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="section-tabs" id="form-tabs">
+          <span class="section-tab active" data-sec="A">A — Admin</span>
+          <span class="section-tab" data-sec="B">B — Disease</span>
+          <span class="section-tab" data-sec="C">C — Geographic</span>
+          <span class="section-tab" data-sec="D">D — Epidemiology</span>
+          <span class="section-tab" data-sec="E">E — Laboratory</span>
+          <span class="section-tab" data-sec="F">F — Risk &amp; action</span>
+          <span class="section-tab" data-sec="G">G — Status</span>
+        </div>
+        <div id="form-section-body"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ DASHBOARD ═══ -->
+  <div class="panel" id="panel-dashboard">
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <div class="card-title" style="margin:0">Reports — GET /api/v3/zoonoses/dashboard</div>
+        <div style="display:flex;gap:8px">
+          <select id="d-state" onchange="loadDashboard()" style="padding:4px 8px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface2);color:var(--text);font-size:12px">
+            <option value="">All states</option>
+            <option value="UK">Uttarakhand</option>
+            <option value="RJ">Rajasthan</option>
+            <option value="KL">Kerala</option>
+            <option value="KA">Karnataka</option>
+            <option value="UP">Uttar Pradesh</option>
+          </select>
+          <select id="d-tier" onchange="loadDashboard()" style="padding:4px 8px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface2);color:var(--text);font-size:12px">
+            <option value="">All tiers</option>
+            <option value="CRITICAL">Critical</option>
+            <option value="HIGH">High</option>
+            <option value="MEDIUM">Medium</option>
+            <option value="LOW">Low</option>
+          </select>
+          <button onclick="loadDashboard()" style="padding:4px 10px;border-radius:var(--radius);background:var(--teal);color:white;border:none;font-size:12px;cursor:pointer">Refresh</button>
+        </div>
+      </div>
+      <div id="dash-empty" style="color:var(--muted);padding:16px 0;font-size:13px">No reports in database. Submit a cross-report first.</div>
+      <div id="dash-table-wrap" style="display:none;overflow-x:auto">
+        <table class="report-table">
+          <thead><tr>
+            <th>Report ID</th><th>Disease</th><th>State / District</th>
+            <th>Source</th><th>Risk</th><th>H-cases</th><th>IHR</th><th>NOHP-PCZ ID</th><th>Time</th>
+          </tr></thead>
+          <tbody id="dash-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ SPATIAL ═══ -->
+  <div class="panel" id="panel-spatial">
+    <div class="card">
+      <div class="card-title">Nearby reports — GET /api/v3/zoonoses/nearby</div>
+      <div class="form-grid">
+        <div class="field"><label>Latitude</label><input id="s-lat" value="30.3165" type="number" step="0.001"></div>
+        <div class="field"><label>Longitude</label><input id="s-lon" value="78.0322" type="number" step="0.001"></div>
+      </div>
+      <div class="form-grid">
+        <div class="field"><label>Radius (km)</label><input id="s-radius" value="100" type="number"></div>
+        <div class="field"><label>Disease code (optional)</label><input id="s-disease" placeholder="e.g. RABIES"></div>
+      </div>
+      <button onclick="queryNearby()" style="margin-top:8px;padding:8px 16px;border-radius:var(--radius);background:var(--teal);color:white;border:none;font-size:13px;cursor:pointer">Search nearby</button>
+      <div id="nearby-results" class="spatial-results" style="margin-top:12px;display:none"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">DBSCAN cluster detection — GET /api/v3/zoonoses/clusters</div>
+      <div class="form-grid">
+        <div class="field"><label>State filter (optional)</label><input id="c-state" placeholder="e.g. UK"></div>
+        <div class="field"><label>Cluster radius (km)</label><input id="c-eps" value="10" type="number"></div>
+      </div>
+      <div class="form-grid single">
+        <div class="field"><label>Min reports per cluster</label><input id="c-min" value="2" type="number"></div>
+      </div>
+      <button onclick="queryClusters()" style="margin-top:8px;padding:8px 16px;border-radius:var(--radius);background:var(--teal);color:white;border:none;font-size:13px;cursor:pointer">Detect clusters</button>
+      <div id="cluster-results" class="spatial-results" style="margin-top:12px;display:none"></div>
+    </div>
+  </div>
+
+  <!-- ═══ DISEASES ═══ -->
+  <div class="panel" id="panel-diseases">
+    <div class="card">
+      <div class="card-title">India Priority Zoonoses — GET /api/v3/zoonoses/disease-list</div>
+      <button onclick="loadDiseases()" style="margin-bottom:12px;padding:6px 14px;border-radius:var(--radius);background:var(--teal);color:white;border:none;font-size:12px;cursor:pointer">Load from API</button>
+      <div id="disease-list-content">
+        <!-- Static fallback while API not available -->
+        <div class="section-divider">Tier 1 — Immediate (IHR notifiable)</div>
+        <div class="disease-grid" id="tier1-grid"></div>
+        <div class="section-divider">Tier 2 — Urgent (48h IDSP alert)</div>
+        <div class="disease-grid" id="tier2-grid"></div>
+        <div class="section-divider">Tier 3 — Routine monthly surveillance</div>
+        <div class="disease-grid" id="tier3-grid"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ AUDIT ═══ -->
+  <div class="panel" id="panel-audit">
+    <div class="card">
+      <div class="card-title">Audit trail — GET /api/v3/zoonoses/audit/{report_id}</div>
+      <div class="form-grid single">
+        <div class="field"><label>Report ID</label><input id="audit-id" placeholder="Paste a report UUID"></div>
+      </div>
+      <button onclick="loadAudit()" style="margin-top:8px;padding:8px 16px;border-radius:var(--radius);background:var(--teal);color:white;border:none;font-size:13px;cursor:pointer">Load audit trail</button>
+      <div id="audit-results" class="spatial-results" style="margin-top:12px;display:none"></div>
+    </div>
+  </div>
+
+
+  <!-- WILDLIFE CONTEXT PANEL -->
+  <div class="panel" id="panel-wildlife">
+    <div class="card">
+      <div class="card-title">Wildlife context enrichment</div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:10px">Auto-populated ~15s after report submission via GBIF · iNaturalist · IUCN · Movebank · NASA Earthdata</div>
+      <div style="display:flex;gap:8px;margin-bottom:10px">
+        <input id="enrich-id" placeholder="Report UUID (auto-filled after submission)" style="flex:1;padding:6px 10px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface2);color:var(--text);font-size:12px">
+        <button onclick="loadEnrichment(document.getElementById('enrich-id').value)" style="padding:6px 14px;border-radius:var(--radius);background:var(--teal);color:white;border:none;font-size:12px;cursor:pointer">Load</button>
+      </div>
+      <div id="enrich-status" style="font-size:12px;color:var(--muted);display:none"></div>
+    </div>
+    <div class="card" id="enrich-gbif-card" style="display:none">
+      <div class="card-title">GBIF — Species occurrences near outbreak</div>
+      <div style="font-size:11px;color:var(--muted);margin-bottom:8px">api.gbif.org · No auth required</div>
+      <div id="enrich-gbif"></div>
+    </div>
+    <div class="card" id="enrich-inat-card" style="display:none">
+      <div class="card-title">iNaturalist — Community wildlife observations</div>
+      <div style="font-size:11px;color:var(--muted);margin-bottom:8px">api.inaturalist.org · No auth required</div>
+      <div id="enrich-inat"></div>
+    </div>
+    <div class="card" id="enrich-iucn-card" style="display:none">
+      <div class="card-title">IUCN Red List — Conservation status</div>
+      <div style="font-size:11px;color:var(--muted);margin-bottom:8px">apiv3.iucnredlist.org · Requires IUCN_API_TOKEN in .env</div>
+      <div id="enrich-iucn"></div>
+    </div>
+    <div class="card" id="enrich-movebank-card" style="display:none">
+      <div class="card-title">Movebank — Animal tracking studies</div>
+      <div style="font-size:11px;color:var(--muted);margin-bottom:8px">movebank.org · Requires MOVEBANK_USERNAME + MOVEBANK_PASSWORD in .env</div>
+      <div id="enrich-movebank"></div>
+    </div>
+    <div class="card" id="enrich-nasa-card" style="display:none">
+      <div class="card-title">NASA Earthdata — Environmental datasets</div>
+      <div style="font-size:11px;color:var(--muted);margin-bottom:8px">cmr.earthdata.nasa.gov · Collection search requires no credentials</div>
+      <div id="enrich-nasa"></div>
+    </div>
+  </div>
+
+</main>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── State ──────────────────────────────────────────────────────────────────
+let lastReport = null;
+let lastFormData = null;
+const STATIC_DISEASES = {
+  RABIES:{tier:1,ihr:true,name:"Rabies",reservoir:"Wildlife/domestic",vectors:["Dog","Bat","Jackal"]},
+  ANTHRAX:{tier:1,ihr:true,name:"Anthrax",reservoir:"Environment/livestock",vectors:["Cattle","Soil"]},
+  PLAGUE:{tier:1,ihr:true,name:"Plague",reservoir:"Wildlife/peri-domestic",vectors:["Rat flea","Rodent"]},
+  AVIAN_INFLUENZA:{tier:1,ihr:true,name:"Avian influenza",reservoir:"Wildlife/poultry",vectors:["Poultry","Migratory bird"]},
+  NIPAH:{tier:1,ihr:true,name:"Nipah virus",reservoir:"Wildlife",vectors:["Fruit bat","Pig"]},
+  CRIMEAN_CONGO_HF:{tier:1,ihr:true,name:"CCHF",reservoir:"Livestock/wildlife",vectors:["Hyalomma tick"]},
+  BRUCELLOSIS:{tier:2,ihr:false,name:"Brucellosis",reservoir:"Livestock",vectors:["Cattle","Goat","Dog"]},
+  LEPTOSPIROSIS:{tier:2,ihr:false,name:"Leptospirosis",reservoir:"Wildlife/peri-domestic",vectors:["Rat","Cattle"]},
+  JEV:{tier:2,ihr:false,name:"Japanese encephalitis",reservoir:"Wildlife/livestock",vectors:["Culex mosquito","Pig"]},
+  SCRUB_TYPHUS:{tier:2,ihr:false,name:"Scrub typhus",reservoir:"Wildlife/peri-domestic",vectors:["Mite","Rodent"]},
+  KYASANUR_FOREST:{tier:2,ihr:false,name:"Kyasanur Forest disease",reservoir:"Wildlife",vectors:["Haemaphysalis tick","Monkey"]},
+  MPOX:{tier:2,ihr:true,name:"Mpox",reservoir:"Wildlife",vectors:["Rodent","NHP"]},
+  ZOONOTIC_TB:{tier:3,ihr:false,name:"Zoonotic tuberculosis",reservoir:"Livestock/wildlife",vectors:["Cattle","Buffalo","NHP"]},
+  Q_FEVER:{tier:3,ihr:false,name:"Q fever",reservoir:"Livestock",vectors:["Cattle","Goat","Tick"]},
+  SALMONELLOSIS:{tier:3,ihr:false,name:"Salmonellosis",reservoir:"Livestock/environment",vectors:["Poultry","Cattle"]},
+  MELIOIDOSIS:{tier:3,ihr:false,name:"Melioidosis",reservoir:"Environment",vectors:["Soil","Water"]},
+  FASCIOLOSIS:{tier:3,ihr:false,name:"Fasciolosis",reservoir:"Livestock/environment",vectors:["Cattle","Water snail"]},
+};
+
+function apiBase(){return document.getElementById("api-base").value.replace(/\/$/,"");}
+function authHeaders(json=false){
+  const k=document.getElementById("f-apikey")?.value||"";
+  const h={"X-API-Key":k};
+  if(json) h["Content-Type"]="application/json";
+  return h;
+}
+function toast(msg,ok=true){
+  const t=document.getElementById("toast");
+  t.textContent=msg;
+  t.style.borderLeftColor=ok?"var(--teal)":"var(--red)";
+  t.classList.add("show");
+  setTimeout(()=>t.classList.remove("show"),3500);
+}
+
+// ── Navigation ─────────────────────────────────────────────────────────────
+document.getElementById("nav").addEventListener("click",e=>{
+  const item=e.target.closest(".nav-item");
+  if(!item) return;
+  document.querySelectorAll(".nav-item").forEach(i=>i.classList.remove("active"));
+  document.querySelectorAll(".panel").forEach(p=>p.classList.remove("active"));
+  item.classList.add("active");
+  document.getElementById("panel-"+item.dataset.panel).classList.add("active");
+  if(item.dataset.panel==="dashboard") loadDashboard();
+  if(item.dataset.panel==="diseases") renderStaticDiseases();
+  if(item.dataset.panel==="wildlife"&&lastReport) loadEnrichment(lastReport.reportId);
+});
+
+// ── Section tabs ────────────────────────────────────────────────────────────
+document.getElementById("form-tabs").addEventListener("click",e=>{
+  const tab=e.target.closest(".section-tab");
+  if(!tab||!lastFormData) return;
+  document.querySelectorAll(".section-tab").forEach(t=>t.classList.remove("active"));
+  tab.classList.add("active");
+  renderFormSection(tab.dataset.sec, lastFormData);
+});
+
+function renderFormSection(sec, form){
+  const body=document.getElementById("form-section-body");
+  const key=`section${sec}_`;
+  const match=Object.entries(form).find(([k])=>k.startsWith(key));
+  if(!match){body.innerHTML=`<div style="color:var(--muted);font-size:12px;padding:8px">Section ${sec} not available.</div>`;return;}
+  const data=match[1];
+  body.innerHTML=`<table class="kv-table">${Object.entries(data).map(([k,v])=>{
+    const disp=Array.isArray(v)?v.join(", "):(v===true?"Yes":v===false?"No":(v??"-"));
+    return`<tr><td>${k}</td><td>${disp}</td></tr>`;
+  }).join("")}</table>`;
+}
+
+// ── Health ping ─────────────────────────────────────────────────────────────
+async function pingHealth(){
+  try{
+    const r=await fetch(apiBase()+"/health");
+    const d=await r.json();
+    toast(`API healthy · PostGIS ${d.postgis_version} · ${d.total_reports} reports`);
+    document.getElementById("m-total").textContent=d.total_reports;
+  }catch(e){toast("Could not reach API — is it running?",false);}
+}
+
+// ── Submit report ───────────────────────────────────────────────────────────
+async function submitReport(){
+  const btn=document.getElementById("submit-btn");
+  const errDiv=document.getElementById("submit-error");
+  btn.disabled=true; btn.textContent="Submitting…"; errDiv.style.display="none";
+
+  const payload={
+    source: document.getElementById("f-source").value,
+    eventType: document.getElementById("f-event").value,
+    disease:{
+      code: document.getElementById("f-disease").value,
+      name: STATIC_DISEASES[document.getElementById("f-disease").value]?.name || document.getElementById("f-disease").value,
+      confirmedBy: document.getElementById("f-confirmed").value,
+    },
+    location:{
+      stateCode: document.getElementById("f-state").value,
+      district: document.getElementById("f-district").value,
+      block: document.getElementById("f-block").value,
+      lat: (v=>Number.isFinite(v)?v:null)(parseFloat(document.getElementById("f-lat").value)),
+      lon: (v=>Number.isFinite(v)?v:null)(parseFloat(document.getElementById("f-lon").value)),
+    },
+    affected:{
+      humanCases: parseInt(document.getElementById("f-hcases").value)||0,
+      humanDeaths: parseInt(document.getElementById("f-hdeaths").value)||0,
+      animalCases: parseInt(document.getElementById("f-acases").value)||0,
+      animalDeaths: parseInt(document.getElementById("f-adeaths").value)||0,
+      speciesAffected: document.getElementById("f-species").value.split(",").map(s=>s.trim()).filter(Boolean),
+    },
+    evidence:{
+      labConfirmed: document.getElementById("f-confirmed").value==="Laboratory",
+      labName: document.getElementById("f-lab").value||null,
+      suspectedSource: document.getElementById("f-suspsource").value||null,
+      exposureRoute: document.getElementById("f-route").value,
+    },
+    riskFlags:{
+      human_exposure: document.getElementById("rf-human").checked,
+      wildlife_involvement: document.getElementById("rf-wildlife").checked,
+      foodborne_risk: document.getElementById("rf-food").checked,
+      transboundary_risk: document.getElementById("rf-trans").checked,
+    },
+    actionsInitiated:{vaccination:false,quarantine:false,rrt_deployed:false,sample_dispatch:false,public_advisory:false},
+    reportingUnit: document.getElementById("f-unit").value,
+    reporterName: document.getElementById("f-officer").value,
+    reporterDesignation: document.getElementById("f-desig").value,
+    nohpczEventId: document.getElementById("f-nohpcz").value||null,
+    ssszCode: document.getElementById("f-sssz").value||null,
+  };
+
+  try{
+    const r=await fetch(apiBase()+"/api/v3/zoonoses/report",{
+      method:"POST",headers:authHeaders(true),body:JSON.stringify(payload)
+    });
+    const d=await r.json();
+    if(!r.ok){
+      const msg=d.detail?.error||d.detail||JSON.stringify(d);
+      if(r.status===409){errDiv.textContent="Duplicate event detected. Existing ID: "+(d.detail?.existingId||"—");errDiv.style.display="block";}
+      else{errDiv.textContent="Error: "+msg;errDiv.style.display="block";}
+      toast("Submission failed: "+msg,false);
+      return;
+    }
+    lastReport=d;
+    // Fetch full form
+    const fr=await fetch(apiBase()+"/api/v3/zoonoses/form/"+d.reportId,{headers:authHeaders()});
+    lastFormData=await fr.json();
+    renderResult(d, lastFormData);
+    toast("Report accepted · "+d.formRef+" · Risk: "+d.riskTier);
+    document.getElementById("audit-id").value=d.reportId;
+    document.getElementById("enrich-id").value=d.reportId;
+    // Switch to result panel
+    document.querySelectorAll(".nav-item").forEach(i=>i.classList.remove("active"));
+    document.querySelectorAll(".panel").forEach(p=>p.classList.remove("active"));
+    document.querySelector('[data-panel="result"]').classList.add("active");
+    document.getElementById("panel-result").classList.add("active");
+  }catch(e){
+    errDiv.textContent="Network error — is the API running at "+apiBase()+"?";
+    errDiv.style.display="block";
+    toast("Network error",false);
+    // Demo mode: render simulated result
+    simulateResult(payload);
+  }finally{
+    btn.disabled=false; btn.textContent="Submit cross-report → generate Annexure-XI";
+  }
+}
+
+function renderResult(resp, form){
+  document.getElementById("result-empty").style.display="none";
+  document.getElementById("result-content").style.display="block";
+  document.getElementById("r-formref").textContent=form.formReference||resp.formRef||"—";
+  document.getElementById("r-score").textContent=resp.riskScore;
+  const bar=document.getElementById("r-bar");
+  bar.style.width=resp.riskScore+"%";
+  bar.style.background={CRITICAL:"var(--red)",HIGH:"var(--amber)",MEDIUM:"var(--blue)",LOW:"var(--green)"}[resp.riskTier]||"var(--muted)";
+  document.getElementById("r-tier-badge").innerHTML=`<span class="badge badge-${resp.riskTier}">${resp.riskTier}</span>`;
+  const actionText=form.sectionF_RiskAndAction?.recommendedAction||resp.recommendedAction||"";
+  document.getElementById("r-action-box").innerHTML=
+    `<div class="action-box action-${resp.riskTier}"><strong>${resp.riskTier}</strong> — ${actionText}</div>`;
+  // IHR flag split display
+  const ihrEl=document.getElementById("r-ihr-box");
+  if(resp.nationalImmediateEscalation&&!resp.annex2AssessmentRelevant){
+    ihrEl.innerHTML=`<div class="action-box action-MEDIUM" style="margin-top:6px"><strong>Tier 1 disease — national immediate escalation</strong> · No human cases yet; Annex 2 assessment not currently triggered.</div>`;
+  } else if(resp.annex2AssessmentRelevant){
+    ihrEl.innerHTML=`<div class="action-box action-CRITICAL" style="margin-top:6px"><strong>⚠ IHR Annex 2 review flag</strong> — competent-authority assessment recommended. This is not an automatic WHO notification. National IHR Focal Point to assess.</div>`;
+  } else {
+    ihrEl.innerHTML="";
+  }
+  // WAHIS trigger (v3.1)
+  const wahisEl=document.getElementById("r-wahis-box");
+  if(wahisEl){
+    if(resp.wahisTrigger){
+      wahisEl.innerHTML=`<div class="action-box action-HIGH" style="margin-top:6px"><strong>🌐 WAHIS notification triggered</strong> — WOAH-listed disease: <code>${resp.woahCode||""}</code>. DAHD national delegate to submit via wahis.woah.org. Use CSV export link to generate submission file.</div>`;
+    } else {
+      wahisEl.innerHTML="";
+    }
+  }
+  // Render first section tab
+  document.querySelectorAll(".section-tab").forEach((t,i)=>t.classList.toggle("active",i===0));
+  renderFormSection("A", form);
+}
+
+function simulateResult(payload){
+  // Offline demo — generate approximate form without hitting API
+  const d=STATIC_DISEASES[payload.disease.code]||{tier:3,ihr:false};
+  let score=({1:40,2:25,3:10}[d.tier]||5)
+            +({CONFIRMED:25,OUTBREAK:20,SUSPECTED:10,EARLY_WARNING:5}[payload.eventType]||5)
+            +(payload.affected.humanCases>=5?15:payload.affected.humanCases>=1?10:0)
+            +(payload.affected.humanDeaths>=1?10:0);
+  score=Math.min(score,100);
+  const tier=score>=70?"CRITICAL":score>=50?"HIGH":score>=30?"MEDIUM":"LOW";
+  const mockResp={riskScore:score,riskTier:tier,ihrTrigger:d.ihr&&payload.affected.humanCases>0,annex2AssessmentRelevant:d.ihr&&payload.affected.humanCases>0,alwaysNotifiableToWHO:false,nationalImmediateEscalation:d.tier===1,formRef:"AXI-DEMO",_demoMode:true};
+  const mockForm={
+    formReference:"AXI-DEMO-"+Math.random().toString(36).substr(2,6).toUpperCase(),
+    sectionA_Administrative:{reportId:"(offline demo)",source:payload.source,district:payload.location.district},
+    sectionB_DiseaseClassification:{diseaseCode:payload.disease.code,diseaseName:payload.disease.name,ihrNotifiable:d.ihr},
+    sectionC_Geographic:{state:payload.location.stateCode,district:payload.location.district},
+    sectionD_Epidemiology:{humanCases:payload.affected.humanCases,humanDeaths:payload.affected.humanDeaths},
+    sectionE_Laboratory:{labName:payload.evidence.labName},
+    sectionF_RiskAndAction:{compositeRiskScore:score,riskTier:tier,recommendedAction:"(offline demo — connect API for full form)"},
+    sectionG_StatusTracking:{formStatus:"OFFLINE_DEMO"},
+  };
+  lastReport=mockResp; lastFormData=mockForm;
+  renderResult(mockResp,mockForm);
+  document.querySelectorAll(".nav-item").forEach(i=>i.classList.remove("active"));
+  document.querySelectorAll(".panel").forEach(p=>p.classList.remove("active"));
+  document.querySelector('[data-panel="result"]').classList.add("active");
+  document.getElementById("panel-result").classList.add("active");
+  // Mark demo result visually
+  const demoNote=document.createElement("div");
+  demoNote.style.cssText="background:var(--amber-bg);border:1px solid var(--amber-border);color:var(--amber);font-size:11px;font-weight:600;padding:6px 12px;border-radius:var(--radius);margin-bottom:8px;text-align:center";
+  demoNote.textContent="DEMO MODE — NON-OPERATIONAL SCORE · Connect API for validated output";
+  const resultContent=document.getElementById("result-content");
+  const existing=resultContent.querySelector(".demo-banner");
+  if(existing) existing.remove();
+  demoNote.className="demo-banner";
+  resultContent.prepend(demoNote);
+  toast("API offline — showing demo result",false);
+}
+
+// ── Dashboard ────────────────────────────────────────────────────────────────
+async function loadDashboard(){
+  const state=document.getElementById("d-state").value;
+  const tier=document.getElementById("d-tier").value;
+  let url=apiBase()+"/api/v3/zoonoses/dashboard?limit=50";
+  if(state) url+="&stateCode="+state;
+  if(tier)  url+="&riskTier="+tier;
+  try{
+    const r=await fetch(url,{headers:authHeaders()});
+    if(!r.ok) throw new Error(r.status);
+    const d=await r.json();
+    // Headline metrics from global summary (unaffected by current filter)
+    if(d.summary) updateMetricsFromSummary(d.summary);
+    const tbody=document.getElementById("dash-tbody");
+    document.getElementById("dash-empty").style.display=d.reports.length?"none":"block";
+    document.getElementById("dash-table-wrap").style.display=d.reports.length?"block":"none";
+    tbody.innerHTML=d.reports.map(r=>`
+      <tr>
+        <td><span style="font-family:monospace;font-size:11px">${r.reportId.substr(0,8)}…</span></td>
+        <td><span class="tag">${r.disease_code}</span></td>
+        <td>${r.stateCode} / ${r.district}</td>
+        <td><span class="tag">${r.source}</span></td>
+        <td><span class="badge badge-${r.riskTier}">${r.riskTier} ${r.riskScore}</span></td>
+        <td>${r.humanCases}</td>
+        <td>${r.annex2AssessmentRelevant?'<span class="badge badge-IHR">Annex 2</span>':r.nationalImmediateEscalation?'<span class="badge badge-MEDIUM">T1</span>':"—"}</td>
+        <td style="font-size:11px;color:var(--muted)">${r.nohpczEventId||"—"}</td>
+        <td style="font-size:11px;color:var(--muted)">${new Date(r.timestamp).toLocaleDateString("en-IN")}</td>
+      </tr>
+    `).join("");
+  }catch(e){document.getElementById("dash-empty").textContent="Could not load — API offline.";}
+}
+
+function updateMetricsFromSummary(s){
+  document.getElementById("m-total").textContent=s.totalReports??s.total??0;
+  document.getElementById("m-crit").textContent=s.criticalEvents??0;
+  document.getElementById("m-ihr").textContent=s.annex2Flags??0;
+  document.getElementById("m-states").textContent=s.statesActive??0;
+}
+
+// ── Spatial ──────────────────────────────────────────────────────────────────
+async function queryNearby(){
+  const lat=document.getElementById("s-lat").value;
+  const lon=document.getElementById("s-lon").value;
+  const radius=document.getElementById("s-radius").value;
+  const dis=document.getElementById("s-disease").value;
+  let url=`${apiBase()}/api/v3/zoonoses/nearby?lat=${lat}&lon=${lon}&radius_km=${radius}`;
+  if(dis) url+="&disease_code="+dis;
+  const el=document.getElementById("nearby-results");
+  el.style.display="block";
+  el.textContent="Loading…";
+  try{
+    const r=await fetch(url,{headers:authHeaders()});
+    if(!r.ok) throw new Error(r.status);
+    const d=await r.json();
+    if(!d.reports.length){el.textContent="No reports within "+radius+" km.";return;}
+    el.innerHTML=d.reports.map(r=>
+      `<div class="cluster-item"><strong>${r.disease}</strong> · ${r.district} · <span class="badge badge-${r.riskTier}">${r.riskTier}</span></div>`
+    ).join("");
+  }catch(e){el.textContent="API offline.";}
+}
+
+async function queryClusters(){
+  const state=document.getElementById("c-state").value;
+  const eps=document.getElementById("c-eps").value;
+  const min=document.getElementById("c-min").value;
+  let url=`${apiBase()}/api/v3/zoonoses/clusters?eps_km=${eps}&min_points=${min}`;
+  if(state) url+="&stateCode="+state;
+  const el=document.getElementById("cluster-results");
+  el.style.display="block"; el.textContent="Loading…";
+  try{
+    const r=await fetch(url,{headers:authHeaders()});
+    if(!r.ok) throw new Error(r.status);
+    const d=await r.json();
+    if(!d.clusterCount){el.textContent=`No clusters detected. Noise reports: ${d.noiseCount}`;return;}
+    el.innerHTML=`<div style="margin-bottom:8px;font-weight:600">${d.clusterCount} clusters · ${d.noiseCount} noise</div>`+
+      Object.entries(d.clusters).filter(([k])=>k!=="-1").map(([id,reps])=>
+        `<div class="cluster-item"><strong>Cluster ${id}</strong> (${reps.length} reports) — ${reps.map(r=>`${r.disease}/${r.district}`).join(", ")}</div>`
+      ).join("");
+  }catch(e){el.textContent="API offline.";}
+}
+
+// ── Disease list ─────────────────────────────────────────────────────────────
+async function loadDiseases(){
+  try{
+    const r=await fetch(apiBase()+"/api/v3/zoonoses/disease-list");
+    const d=await r.json();
+    renderDiseaseGrids(d.diseases);
+    toast("Disease list loaded from API — "+d.totalDiseases+" diseases");
+  }catch(e){renderStaticDiseases();}
+}
+
+function renderStaticDiseases(){renderDiseaseGrids(STATIC_DISEASES);}
+
+function renderDiseaseGrids(diseases){
+  [1,2,3].forEach(t=>{
+    const el=document.getElementById("tier"+t+"-grid");
+    if(!el) return;
+    const list=Object.entries(diseases).filter(([,v])=>v.tier===t);
+    el.innerHTML=list.map(([k,v])=>`
+      <div class="disease-card">
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">
+          <span class="disease-code">${k}</span>
+          <span class="tier-label tier-${v.tier}">T${v.tier}</span>
+          ${v.ihr?'<span class="tier-label" style="background:var(--red-bg);color:var(--red);border-color:var(--red-border)">IHR</span>':""}
+        </div>
+        <div class="disease-name">${v.name}</div>
+        <div class="disease-meta">${v.reservoir}</div>
+        <div class="disease-meta">${(v.vectors||[]).slice(0,3).join(" · ")}</div>
+      </div>
+    `).join("");
+  });
+}
+
+// ── Audit ────────────────────────────────────────────────────────────────────
+async function loadAudit(){
+  const id=document.getElementById("audit-id").value.trim();
+  if(!id){toast("Enter a report ID",false);return;}
+  const el=document.getElementById("audit-results");
+  el.style.display="block"; el.textContent="Loading…";
+  try{
+    const r=await fetch(apiBase()+"/api/v3/zoonoses/audit/"+id,{headers:authHeaders()});
+    if(!r.ok) throw new Error(r.status);
+    const d=await r.json();
+    if(!d.trail.length){el.textContent="No audit entries for this report ID.";return;}
+    el.innerHTML=d.trail.map(e=>
+      `<div class="cluster-item"><strong>${e.action}</strong> · ${e.actor} · <span style="color:var(--muted)">${new Date(e.timestamp).toLocaleString("en-IN")}</span>${e.detail?`<div style="color:var(--muted);margin-top:2px">${e.detail}</div>`:""}</div>`
+    ).join("");
+  }catch(e){el.textContent="API offline.";}
+}
+
+// ── Theme ────────────────────────────────────────────────────────────────────
+function toggleTheme(){
+  const html=document.documentElement;
+  html.setAttribute("data-theme",html.getAttribute("data-theme")==="dark"?"light":"dark");
+}
+
+
+// ── Wildlife Context (Enrichment) ──────────────────────────────────────────
+async function loadEnrichment(id){
+  if(!id){toast("Enter a report ID",false);return;}
+  document.getElementById("enrich-id").value=id;
+  const st=document.getElementById("enrich-status");
+  st.style.display="block"; st.textContent="Loading enrichment data…";
+  ["gbif","inat","iucn","movebank","nasa"].forEach(k=>{
+    document.getElementById("enrich-"+k+"-card").style.display="none";
+  });
+  try{
+    const r=await fetch(apiBase()+"/api/v3/zoonoses/enrichment/"+id);
+    const d=await r.json();
+    if(d.status==="PENDING"){st.textContent="Enrichment running — retry in 15 seconds";return;}
+    st.style.display="none";
+    if(d.gbif){document.getElementById("enrich-gbif-card").style.display="block";document.getElementById("enrich-gbif").innerHTML=renderGBIF(d.gbif);}
+    if(d.inaturalist){document.getElementById("enrich-inat-card").style.display="block";document.getElementById("enrich-inat").innerHTML=renderINat(d.inaturalist);}
+    if(d.iucn){document.getElementById("enrich-iucn-card").style.display="block";document.getElementById("enrich-iucn").innerHTML=renderIUCN(d.iucn);}
+    if(d.movebank){document.getElementById("enrich-movebank-card").style.display="block";document.getElementById("enrich-movebank").innerHTML=renderMovebank(d.movebank);}
+    if(d.nasa){document.getElementById("enrich-nasa-card").style.display="block";document.getElementById("enrich-nasa").innerHTML=renderNASA(d.nasa);}
+  }catch(e){st.textContent="API offline or enrichment not yet available.";}
+}
+function renderGBIF(d){
+  if(!d||d.error||d.note) return '<div style="color:var(--muted);font-size:12px">'+(d&&(d.note||d.error)||"No data")+'</div>';
+  const sp=Object.entries(d.species||{});
+  if(!sp.length) return '<div style="color:var(--muted);font-size:12px">No occurrence data found near outbreak location.</div>';
+  return sp.map(function(e){var name=e[0];var v=e[1];return '<div style="margin-bottom:10px"><div style="font-weight:600;font-size:13px">'+name+' <span style="font-style:italic;color:var(--muted);font-size:11px">'+(v.scientificName||"")+'</span></div><div style="font-size:11px;color:var(--muted);margin-bottom:4px">'+(v.totalRecords||0)+' GBIF records</div>'+(v.recentRecords||[]).map(function(rec){return '<div style="font-size:11px;padding:3px 0;border-bottom:0.5px solid var(--border)">'+(rec.locality||"Unknown")+" · "+(rec.eventDate||"date unknown")+'<a href="'+rec.gbifLink+'" target="_blank" style="color:var(--teal);margin-left:6px">GBIF</a></div>';}).join("")+'</div>';}).join("");
+}
+function renderINat(d){
+  if(!d||d.error) return '<div style="color:var(--muted);font-size:12px">'+(d&&d.error||"No data")+'</div>';
+  if(!d.observations||!d.observations.length) return '<div style="color:var(--muted);font-size:12px">No research-grade observations near this location.</div>';
+  return '<div style="font-size:11px;color:var(--muted);margin-bottom:6px">'+d.totalResults+' observations</div>'+
+    d.observations.map(function(o){return '<div style="font-size:11px;padding:4px 0;border-bottom:0.5px solid var(--border)"><strong>'+(o.species||"")+'</strong> · '+(o.observedOn||"—")+" · "+(o.place||"location not recorded")+'<a href="'+o.inatLink+'" target="_blank" style="color:var(--teal);margin-left:6px">iNat</a></div>';}).join("");
+}
+function renderIUCN(d){
+  if(!d||d.note) return '<div style="color:var(--muted);font-size:12px">'+(d&&d.note||"No data")+'</div>';
+  var html=d.threatenedSpeciesInvolved?'<div class="action-box action-HIGH" style="margin-bottom:8px"><strong>Threatened species involved</strong> — conservation urgency elevated</div>':"";
+  html+=(d.statuses||[]).map(function(s){var col={CR:"var(--red)",EN:"var(--red)",VU:"var(--amber)",NT:"var(--amber)",LC:"var(--green)"}[s.category]||"var(--muted)";return '<div style="display:flex;align-items:center;gap:10px;padding:5px 0;border-bottom:0.5px solid var(--border);font-size:12px"><span style="font-weight:600;min-width:90px">'+(s.commonName||"")+'</span><span style="font-style:italic;color:var(--muted);flex:1">'+(s.scientificName||"")+'</span><span style="font-weight:700;color:'+col+'">'+(s.category||"—")+'</span><a href="'+s.iucnLink+'" target="_blank" style="color:var(--teal);font-size:11px">IUCN</a></div>';}).join("");
+  return html;
+}
+function renderMovebank(d){
+  if(!d||d.note) return '<div style="color:var(--muted);font-size:12px">'+(d&&d.note||"No data")+'</div>';
+  if(!d.studies||!d.studies.length) return '<div style="color:var(--muted);font-size:12px">No matching Movebank studies found for these species in India.</div>';
+  return '<div style="font-size:11px;color:var(--muted);margin-bottom:6px">'+d.studiesFound+' studies found</div>'+
+    d.studies.map(function(s){return '<div style="font-size:11px;padding:4px 0;border-bottom:0.5px solid var(--border)"><strong>'+(s.studyName||s.studyId||"Study")+'</strong><a href="'+s.movebankLink+'" target="_blank" style="color:var(--teal);margin-left:8px">Movebank</a></div>';}).join("");
+}
+function renderNASA(d){
+  if(!d||d.error) return '<div style="color:var(--muted);font-size:12px">'+(d&&d.error||"No data")+'</div>';
+  return '<div style="font-size:11px;color:var(--muted);margin-bottom:6px">'+(d.note||"")+'</div>'+
+    (d.datasets||[]).map(function(ds){return '<div style="font-size:11px;padding:4px 0;border-bottom:0.5px solid var(--border)"><strong>'+(ds.dataset||"")+'</strong> ('+(ds.shortName||"")+')'+(ds.error?'<span style="color:var(--muted)"> · '+ds.error+'</span>':'<a href="'+ds.earthdataLink+'" target="_blank" style="color:var(--teal);margin-left:8px">Earthdata</a>')+'</div>';}).join("");
+}
+
+// ── Init ─────────────────────────────────────────────────────────────────────
+renderStaticDiseases();
+pingHealth();
+</script>
+</body>
+</html>
