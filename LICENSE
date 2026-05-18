@@ -4,7 +4,21 @@
 
    TERMS AND CONDITIONS FOR USE, REPRODUCTION, AND DISTRIBUTION
 
-   1. Definitions.
+Copyright © 2026 Dr. Aditi Sharma,
+Council for Environment and Sustainable Development, Dehradun, India.
+
+Licensed under the [Apache License 2.0](./LICENSE).
+
+This software was developed as part of research on One Health zoonotic disease
+surveillance systems in India, aligned with the National One Health Programme
+for Prevention and Control of Zoonoses (NOHP-PCZ), NCDC/MoHFW.
+
+**Attribution required.** If you use or adapt this work, cite:
+> Sharma, A. (2026). ZoonosesLink: India Zoonoses Cross-Reporting API.
+> Council for Environment and Sustainable Development, Dehradun.
+> github.com/vetaditi/supreme-octo-train
+  
+1. Definitions.
 
       "License" shall mean the terms and conditions for use, reproduction,
       and distribution as defined by Sections 1 through 9 of this document.
@@ -186,7 +200,7 @@
       same "printed page" as the copyright notice for easier
       identification within third-party archives.
 
-   Copyright [yyyy] [name of copyright owner]
+   Copyright [2026] [Dr.Aditi Sharma, Council for Evironment and Sustainable Development]
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
